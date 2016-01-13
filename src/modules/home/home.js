@@ -2,13 +2,24 @@ require('./home.less');
 
 var service = require('./service'),
     appFunc = require('../utils/appFunc'),
-    template = require('./home.tpl.html'),
+    // template = require('./home.tpl.html'),
+    template = require('./home.dl.tpl.html'),
     inputModule = require('../input/input');
 
 var home = {
     init: function(){
-        this.getTimeline();
-        this.bindEvent();
+        // this.getTimeline();
+        this.getDeviceList();
+        this.bindEvent();        
+    },
+    getDeviceList: function() {
+        var that = this;
+        service.getDeviceList(function(dl) {
+            that.renderDeviceList(dl);
+            hiApp.hideIndicator();
+            var ptrContent = $$('#homeView').find('.pull-to-refresh-content');
+            ptrContent.data('scrollLoading','unloading');
+        });
     },
     getTimeline: function(){
         var that = this;
@@ -23,7 +34,7 @@ var home = {
             ptrContent.data('scrollLoading','unloading');
         });
     },
-    refreshTimeline: function(){
+    refreshDeviceList: function(){
 
         service.refreshTimeline(function(tl){
             // Find newest msg id in ptrContent;
@@ -58,7 +69,7 @@ var home = {
 
         });
     },
-    infiniteTimeline: function(){
+    infiniteDeviceList: function(){
         var $this = $$(this);
 
         hiApp.showIndicator();
@@ -85,7 +96,7 @@ var home = {
             }
         });
     },
-    refreshTimelineByClick: function(){
+    refreshDeviceListByClick: function(){
         setTimeout(function(){
             $$('#homeView .refresh-click').find('i').addClass('ios7-reloading');
         },350);
@@ -109,7 +120,7 @@ var home = {
             $$(this).html(nowTime);
         });
     },
-    photoBrowser: function(){
+    deviceBrowser: function(){
 
         var url = $$(this).attr('src');
 
@@ -121,6 +132,25 @@ var home = {
 
         myPhotoBrowser.open();
 
+    },
+    renderDeviceList: function(dl, type) {
+        var renderData = {
+            devicelist: dl,
+            finalText: function() {
+                return appFunc.matchUrl(this.text);
+            },
+            time: function() {
+                return appFunc.timeFormat(this.created_at);
+            }
+        };
+        var output = appFunc.renderTpl(template, renderData);
+        if(type === 'prepend'){
+            $$('#homeView').find('.home-timeline').prepend(output);
+        }else if(type === 'append') {
+            $$('#homeView').find('.home-timeline').append(output);
+        }else {
+            $$('#homeView').find('.home-timeline').html(output);
+        }
     },
     renderTimeline: function(tl, type){
         var renderData = {
@@ -141,7 +171,7 @@ var home = {
             $$('#homeView').find('.home-timeline').html(output);
         }
     },
-    openItemPage: function(e){
+    opendevicePage: function(e){
         if(e.target.nodeName === 'A' || e.target.nodeName === 'IMG'){
             return false;
         }
@@ -154,17 +184,17 @@ var home = {
             element: '#homeView',
             selector: '.pull-to-refresh-content',
             event: 'refresh',
-            handler: this.refreshTimeline
+            handler: this.refreshDeviceList
         },{
             element: '#homeView',
             selector: '.pull-to-refresh-content',
             event: 'infinite',
-            handler: this.infiniteTimeline
+            handler: this.infiniteDeviceList
         },{
             element: '#homeView',
             selector: '.refresh-click',
             event: 'click',
-            handler: this.refreshTimelineByClick
+            handler: this.refreshDeviceListByClick
         },{
             element: '#homeView',
             selector: 'a.open-send-popup',
@@ -174,12 +204,12 @@ var home = {
             element: '#homeView',
             selector: '.home-timeline .ks-facebook-card',
             event: 'click',
-            handler: this.openItemPage
+            handler: this.openDevicePage
         },{
             element: '#homeView',
             selector:'div.card-content .item-image>img',
             event: 'click',
-            handler: this.photoBrowser
+            handler: this.deviceBrowser
         }];
 
         appFunc.bindEvents(bindings);

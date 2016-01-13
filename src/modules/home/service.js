@@ -21,5 +21,12 @@ module.exports = {
         },function(res){
             callback(res.data);
         });
+    },
+    getDeviceList: function(callback) {
+        xhr.simpleCall({
+            func:'devicelist'
+        },function(res){
+            callback(res.data);
+        });        
     }
 };

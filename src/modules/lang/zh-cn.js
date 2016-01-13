@@ -55,6 +55,11 @@ module.exports = {
         comment:'评论',
         like:'喜欢'
     },
+    devicelist: {
+        connect: '连接',
+        getspec: '详细信息',
+        control: '控制'
+    },    
     item:{
         title:'正文'
     },

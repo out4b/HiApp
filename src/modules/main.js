@@ -83,7 +83,10 @@ var app = {
                     back: i18n.global.back,
                     title: i18n.item.title,
                     comment: i18n.timeline.comment,
-                    forward: i18n.timeline.forward
+                    forward: i18n.timeline.forward,
+                    connect: i18n.devicelist.connect,
+                    getspec: i18n.devicelist.getspec,
+                    control: i18n.devicelist.control
                 },
                 'page:message': {
                     chat: i18n.chat.title,

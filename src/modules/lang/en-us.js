@@ -55,6 +55,11 @@ module.exports = {
         comment:'Comment',
         like:'Like'
     },
+    devicelist: {
+        connect: 'Connect',
+        getspec: 'Explore',
+        control: 'Manage'
+    },
     item:{
         title:'Tweet'
     },
