@@ -4,7 +4,10 @@ var service = require('./service'),
     appFunc = require('../utils/appFunc'),
     // template = require('./home.tpl.html'),
     template = require('./home.dl.tpl.html'),
-    inputModule = require('../input/input');
+    inputModule = require('../input/input'),
+    connectModule = require('../connect/connect');
+    getspecModule = require('../getspec/getspec');
+    controlModule = require('../control/control');
 
 var home = {
     init: function(){
@@ -41,6 +44,7 @@ var home = {
         var deviceID;
 
         for (deviceID in dl) {
+            dl[deviceID].deviceID = deviceID;
             deviceArray.push(dl[deviceID]);
         }
         console.log(deviceArray);
@@ -161,6 +165,9 @@ var home = {
     renderDeviceList: function(dl, type) {
         var renderData = {
             devicelist: dl,
+            deviceID: function() {
+                return this.deviceID;
+            },
             deviceName: function() {
                 return this.device.friendlyName;
             },
@@ -200,11 +207,12 @@ var home = {
             $$('#homeView').find('.home-timeline').html(output);
         }
     },
-    opendevicePage: function(e){
+    openDevicePage: function(e){
+        var $this = $$('#homeView .home-timeline .card[data-id]');
+        console.log($this.data('id'));
         if(e.target.nodeName === 'A' || e.target.nodeName === 'IMG'){
             return false;
         }
-        var itemId = $$(this).data('id');
         homeF7View.router.loadPage('page/tweet.html?id=' + itemId);
     },
     bindEvent: function(){
@@ -239,6 +247,21 @@ var home = {
             selector:'div.card-content .item-image>img',
             event: 'click',
             handler: this.deviceBrowser
+        },{
+            element: '#homeView',
+            selector:'div.card-footer .connectlink',
+            event: 'click',
+            handler: connectModule.openConnectPage
+        },{
+            element: '#homeView',
+            selector:'div.card-footer .getspeclink',
+            event: 'click',
+            handler: getspecModule.openGetSpecPage
+        },{
+            element: '#homeView',
+            selector:'div.card-footer .controllink',
+            event: 'click',
+            handler: controlModule.openControlPage
         }];
 
         appFunc.bindEvents(bindings);
