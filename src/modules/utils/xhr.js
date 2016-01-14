@@ -1,5 +1,6 @@
 var appFunc = require('./appFunc'),
     networkStatus = require('../components/networkStatus');
+var CdifServerUrl = 'http://10.239.158.75:3049/';
 
 module.exports = {
 
@@ -17,6 +18,20 @@ module.exports = {
         //var port = options.port || window.location.port;
         var query = options.query || {};
         var func = options.func || '';
+
+        if (func === 'devicelist') {
+            return CdifServerUrl + 'device-list';
+        } else if (func === 'discover') {
+            return CdifServerUrl + 'discover';
+        } else if (func === 'stop-discover') {
+            return CdifServerUrl + 'stop-discover';
+        } else if (func === 'connect') {
+            return CdifServerUrl + '/device-control/' + options.data + '/connect';
+        } else if (func === 'disconnect') {
+            return CdifServerUrl + '/device-control/' + options.data + '/disconnect';
+        } else if (func === 'invoke-action') {
+            return CdifServerUrl + '/device-control/' + options.data + '/invoke-action';
+        }
 
         var apiServer = 'api/' + func + '.json' +
             (appFunc.isEmpty(query) ? '' : '?');

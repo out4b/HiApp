@@ -22,11 +22,23 @@ module.exports = {
             callback(res.data);
         });
     },
+    discoverDevice: function(callback) {
+        xhr.simpleCall({
+            func:'discover',
+            method: 'POST'
+        }, callback);
+    },
+    stopDiscoverDevice: function(callback) {
+        xhr.simpleCall({
+            func:'stop-discover',
+            method: 'POST'
+        }, callback);
+    },    
     getDeviceList: function(callback) {
         xhr.simpleCall({
             func:'devicelist'
         },function(res){
-            callback(res.data);
+            callback(res);
         });        
     }
 };

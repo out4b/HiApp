@@ -9,17 +9,42 @@ var service = require('./service'),
 var home = {
     init: function(){
         // this.getTimeline();
-        this.getDeviceList();
+        this.initDeviceList();
         this.bindEvent();        
+    },
+    initDeviceList: function() {
+        var that = this;
+        service.discoverDevice(function() {
+            setTimeout(function() {
+                service.stopDiscoverDevice(function() {
+                    service.getDeviceList(function(dl) {
+                        that.renderDeviceList(that.transformDeviceList(dl));
+                        hiApp.hideIndicator();
+                        var ptrContent = $$('#homeView').find('.pull-to-refresh-content');
+                        ptrContent.data('scrollLoading','unloading');
+                    });
+                });
+            }, 3000);
+        });
     },
     getDeviceList: function() {
         var that = this;
         service.getDeviceList(function(dl) {
-            that.renderDeviceList(dl);
+            that.renderDeviceList(that.transformDeviceList(dl));
             hiApp.hideIndicator();
             var ptrContent = $$('#homeView').find('.pull-to-refresh-content');
             ptrContent.data('scrollLoading','unloading');
         });
+    },
+    transformDeviceList: function(dl) {
+        var deviceArray = [];
+        var deviceID;
+
+        for (deviceID in dl) {
+            deviceArray.push(dl[deviceID]);
+        }
+        console.log(deviceArray);
+        return deviceArray;
     },
     getTimeline: function(){
         var that = this;
@@ -136,11 +161,14 @@ var home = {
     renderDeviceList: function(dl, type) {
         var renderData = {
             devicelist: dl,
-            finalText: function() {
-                return appFunc.matchUrl(this.text);
+            deviceName: function() {
+                return this.device.friendlyName;
             },
-            time: function() {
-                return appFunc.timeFormat(this.created_at);
+            deviceType: function() {
+                return this.device.deviceType;
+            },
+            manufacturer: function() {
+                return this.device.manufacturer;
             }
         };
         var output = appFunc.renderTpl(template, renderData);
@@ -156,6 +184,7 @@ var home = {
         var renderData = {
             timeline: tl,
             finalText: function(){
+                console.log(this);
                 return appFunc.matchUrl(this.text);
             },
             time: function(){
