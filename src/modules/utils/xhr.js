@@ -26,11 +26,11 @@ module.exports = {
         } else if (func === 'stop-discover') {
             return CdifServerUrl + 'stop-discover';
         } else if (func === 'connect') {
-            return CdifServerUrl + '/device-control/' + options.data + '/connect';
+            return CdifServerUrl + 'device-control/' + options.data.deviceID + '/connect';
         } else if (func === 'disconnect') {
-            return CdifServerUrl + '/device-control/' + options.data + '/disconnect';
+            return CdifServerUrl + 'device-control/' + options.data.deviceID + '/disconnect';
         } else if (func === 'invoke-action') {
-            return CdifServerUrl + '/device-control/' + options.data + '/invoke-action';
+            return CdifServerUrl + 'device-control/' + options.data.deviceID + '/invoke-action';
         }
 
         var apiServer = 'api/' + func + '.json' +

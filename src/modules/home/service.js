@@ -40,5 +40,18 @@ module.exports = {
         },function(res){
             callback(res);
         });        
+    },
+    connectDevice: function(deviceID, user, pass, callback) {
+        xhr.simpleCall({
+            func:'connect',
+            method: 'POST',
+            data: {
+                deviceID: deviceID,
+                username: user,
+                password: pass
+            }
+        },function(err, result){
+            callback(err, result);
+        });                
     }
 };

@@ -8,6 +8,7 @@ var service = require('./service'),
     connectModule = require('../connect/connect');
     getspecModule = require('../getspec/getspec');
     controlModule = require('../control/control');
+var deviceList = {};
 
 var home = {
     init: function(){
@@ -21,7 +22,8 @@ var home = {
             setTimeout(function() {
                 service.stopDiscoverDevice(function() {
                     service.getDeviceList(function(dl) {
-                        that.renderDeviceList(that.transformDeviceList(dl));
+                        deviceList = dl;
+                        that.renderDeviceList(that.transformDeviceList(dl), 'prepend');
                         hiApp.hideIndicator();
                         var ptrContent = $$('#homeView').find('.pull-to-refresh-content');
                         ptrContent.data('scrollLoading','unloading');
@@ -33,6 +35,7 @@ var home = {
     getDeviceList: function() {
         var that = this;
         service.getDeviceList(function(dl) {
+            deviceList = dl;
             that.renderDeviceList(that.transformDeviceList(dl));
             hiApp.hideIndicator();
             var ptrContent = $$('#homeView').find('.pull-to-refresh-content');
@@ -41,13 +44,11 @@ var home = {
     },
     transformDeviceList: function(dl) {
         var deviceArray = [];
-        var deviceID;
 
         for (deviceID in dl) {
-            dl[deviceID].deviceID = deviceID;
+            dl[deviceID].id = deviceID;
             deviceArray.push(dl[deviceID]);
         }
-        console.log(deviceArray);
         return deviceArray;
     },
     getTimeline: function(){
@@ -163,11 +164,9 @@ var home = {
 
     },
     renderDeviceList: function(dl, type) {
+        console.log(dl);
         var renderData = {
             devicelist: dl,
-            deviceID: function() {
-                return this.deviceID;
-            },
             deviceName: function() {
                 return this.device.friendlyName;
             },
@@ -188,10 +187,10 @@ var home = {
         }
     },
     renderTimeline: function(tl, type){
+        console.log(tl);
         var renderData = {
             timeline: tl,
             finalText: function(){
-                console.log(this);
                 return appFunc.matchUrl(this.text);
             },
             time: function(){
@@ -214,6 +213,17 @@ var home = {
             return false;
         }
         homeF7View.router.loadPage('page/tweet.html?id=' + itemId);
+    },
+    connectDevice: function(e) {
+        // var $this = $$('#homeView .home-timeline .ks-facebook-card[data-id="193c75aa-87f7-40d7-9e62-e4e7b8139fcc"]');
+        var $this = ($$(this).parent().parent());
+        var deviceID = $this.data('id');
+
+        if (deviceList[deviceID].device.userAuth === false) {
+            service.connectDevice(deviceID, '', '', function(err, result) {
+                // that.renderDeviceList(that.transformDeviceList(dl));
+            });
+        }
     },
     bindEvent: function(){
 
@@ -239,11 +249,6 @@ var home = {
             handler: inputModule.openSendPopup
         },{
             element: '#homeView',
-            selector: '.home-timeline .ks-facebook-card',
-            event: 'click',
-            handler: this.openDevicePage
-        },{
-            element: '#homeView',
             selector:'div.card-content .item-image>img',
             event: 'click',
             handler: this.deviceBrowser
@@ -251,7 +256,7 @@ var home = {
             element: '#homeView',
             selector:'div.card-footer .connectlink',
             event: 'click',
-            handler: connectModule.openConnectPage
+            handler: this.connectDevice
         },{
             element: '#homeView',
             selector:'div.card-footer .getspeclink',
