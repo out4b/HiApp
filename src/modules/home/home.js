@@ -21,9 +21,9 @@ var home = {
         service.discoverDevice(function() {
             setTimeout(function() {
                 service.stopDiscoverDevice(function() {
-                    service.getDeviceList(function(dl) {
+                    service.getDeviceList(function(err, dl) {
                         deviceList = dl;
-                        that.renderDeviceList(that.transformDeviceList(dl), 'prepend');
+                        that.renderDeviceList(that.transformDeviceList(dl));
                         hiApp.hideIndicator();
                         var ptrContent = $$('#homeView').find('.pull-to-refresh-content');
                         ptrContent.data('scrollLoading','unloading');
@@ -34,7 +34,7 @@ var home = {
     },
     getDeviceList: function() {
         var that = this;
-        service.getDeviceList(function(dl) {
+        service.getDeviceList(function(err, dl) {
             deviceList = dl;
             that.renderDeviceList(that.transformDeviceList(dl));
             hiApp.hideIndicator();
@@ -219,8 +219,10 @@ var home = {
         var $this = ($$(this).parent().parent());
         var deviceID = $this.data('id');
 
+        console.log(deviceID);
         if (deviceList[deviceID].device.userAuth === false) {
             service.connectDevice(deviceID, '', '', function(err, result) {
+                console.log(err); console.log(result);
                 // that.renderDeviceList(that.transformDeviceList(dl));
             });
         }

@@ -85,7 +85,7 @@ module.exports = {
 
                 if(!codeLevel){
 
-                    (typeof(callback) === 'function') ? callback(data) : '';
+                    (typeof(callback) === 'function') ? callback(null, data) : '';
 
                 }else{
 
@@ -94,6 +94,12 @@ module.exports = {
                         hiApp.hidePreloader();
                     });
                 }
+            },
+            error:function(xhr, status, data) {
+                console.log(JSON.parse(xhr.response).topic);
+                console.log(status);
+                console.log(data);
+                callback(new Error('data.response.topic'), data.response.message);
             }
         });
 

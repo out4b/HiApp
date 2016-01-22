@@ -37,8 +37,8 @@ module.exports = {
     getDeviceList: function(callback) {
         xhr.simpleCall({
             func:'devicelist'
-        },function(res){
-            callback(res);
+        },function(err, res){
+            callback(err, res);
         });        
     },
     connectDevice: function(deviceID, user, pass, callback) {
