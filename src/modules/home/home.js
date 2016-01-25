@@ -14,7 +14,7 @@ var home = {
     init: function(){
         // this.getTimeline();
         this.initDeviceList();
-        this.bindEvent();        
+        this.bindEvent();
     },
     initDeviceList: function() {
         var that = this;
@@ -227,7 +227,7 @@ var home = {
                     hiApp.alert("device connected", function(){
                         hiApp.hideIndicator();
                         hiApp.hidePreloader();
-                    });                    
+                    });
                 } else if (err && result === 'device not responding') {
                         hiApp.alert("device no response", function(){
                         hiApp.hideIndicator();

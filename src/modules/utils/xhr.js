@@ -1,6 +1,6 @@
 var appFunc = require('./appFunc'),
     networkStatus = require('../components/networkStatus');
-var CdifServerUrl = 'http://10.239.158.75:3049/';
+var CdifServerUrl = 'http://localhost:3049/';
 
 module.exports = {
 
@@ -72,7 +72,10 @@ module.exports = {
             url: that.getRequestURL(options) ,
             method: options.method,
             data: options.data,
-            success:function(data){
+            success:function(data, status, xhr) {
+                console.log(data);
+                console.log(status);
+                console.log(xhr);
                 data = data ? JSON.parse(data) : '';
                 callback(null, data);
 
