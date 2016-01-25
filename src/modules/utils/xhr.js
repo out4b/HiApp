@@ -74,32 +74,31 @@ module.exports = {
             data: options.data,
             success:function(data){
                 data = data ? JSON.parse(data) : '';
+                callback(null, data);
 
-                var codes = [
-                    {code:10000, message:'Your session is invalid, please login again',path:'/'},
-                    {code:10001, message:'Unknown error,please login again',path:'tpl/login.html'},
-                    {code:20001, message:'User name or password does not match',path:'/'}
-                ];
+                // var codes = [
+                //     {code:10000, message:'Your session is invalid, please login again',path:'/'},
+                //     {code:10001, message:'Unknown error,please login again',path:'tpl/login.html'},
+                //     {code:20001, message:'User name or password does not match',path:'/'}
+                // ];
 
-                var codeLevel = that.search(data.err_code,codes);
+                // var codeLevel = that.search(data.err_code,codes);
 
-                if(!codeLevel){
+                // if(!codeLevel){
 
-                    (typeof(callback) === 'function') ? callback(null, data) : '';
+                //     (typeof(callback) === 'function') ? callback(null, data) : '';
 
-                }else{
+                // }else{
 
-                    hiApp.alert(codeLevel.message,function(){
-                        hiApp.hideIndicator();
-                        hiApp.hidePreloader();
-                    });
-                }
+                //     hiApp.alert(codeLevel.message,function(){
+                //         hiApp.hideIndicator();
+                //         hiApp.hidePreloader();
+                //     });
+                // }
             },
             error:function(xhr, status, data) {
-                console.log(JSON.parse(xhr.response).topic);
-                console.log(status);
-                console.log(data);
-                callback(new Error('data.response.topic'), data.response.message);
+                var response = JSON.parse(xhr.response);
+                callback(new Error(response.topic), response.message);
             }
         });
 

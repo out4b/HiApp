@@ -223,6 +223,17 @@ var home = {
         if (deviceList[deviceID].device.userAuth === false) {
             service.connectDevice(deviceID, '', '', function(err, result) {
                 console.log(err); console.log(result);
+                if (!err) {
+                    hiApp.alert("device connected", function(){
+                        hiApp.hideIndicator();
+                        hiApp.hidePreloader();
+                    });                    
+                } else if (err && result === 'device not responding') {
+                        hiApp.alert("device no response", function(){
+                        hiApp.hideIndicator();
+                        hiApp.hidePreloader();
+                    });
+                }
                 // that.renderDeviceList(that.transformDeviceList(dl));
             });
         }
