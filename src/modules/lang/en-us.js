@@ -57,6 +57,7 @@ module.exports = {
     },
     devicelist: {
         connect: 'Connect',
+        disconnect: 'Disconnect',
         getspec: 'Explore',
         control: 'Manage'
     },

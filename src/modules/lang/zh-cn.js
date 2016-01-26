@@ -57,6 +57,7 @@ module.exports = {
     },
     devicelist: {
         connect: '连接',
+        disconnect: '断开',
         getspec: '详细信息',
         control: '控制'
     },    

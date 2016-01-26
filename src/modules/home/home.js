@@ -175,6 +175,9 @@ var home = {
             },
             manufacturer: function() {
                 return this.device.manufacturer;
+            },
+            deviceID: function() {
+                return this.id;
             }
         };
         var output = appFunc.renderTpl(template, renderData);
@@ -207,12 +210,10 @@ var home = {
         }
     },
     openDevicePage: function(e){
-        var $this = $$('#homeView .home-timeline .card[data-id]');
-        console.log($this.data('id'));
-        if(e.target.nodeName === 'A' || e.target.nodeName === 'IMG'){
-            return false;
-        }
-        homeF7View.router.loadPage('page/tweet.html?id=' + itemId);
+        var $this = ($$(this).parent().parent());
+        var deviceID = $this.data('id');
+        controlModule.openControlPage(deviceList[deviceID].device);
+        // homeF7View.router.loadPage('page/tweet.html?id=' + itemId);
     },
     connectDevice: function(e) {
         // var $this = $$('#homeView .home-timeline .ks-facebook-card[data-id="193c75aa-87f7-40d7-9e62-e4e7b8139fcc"]');
@@ -236,8 +237,36 @@ var home = {
                 }
                 // that.renderDeviceList(that.transformDeviceList(dl));
             });
+        } else {
+            // handle token
         }
     },
+    disconnectDevice: function(e) {
+        // var $this = $$('#homeView .home-timeline .ks-facebook-card[data-id="193c75aa-87f7-40d7-9e62-e4e7b8139fcc"]');
+        var $this = ($$(this).parent().parent());
+        var deviceID = $this.data('id');
+
+        console.log(deviceID);
+        if (deviceList[deviceID].device.userAuth === false) {
+            service.disconnectDevice(deviceID, '', function(err, result) {
+                console.log(err); console.log(result);
+                if (!err) {
+                    hiApp.alert("device disconnected", function(){
+                        hiApp.hideIndicator();
+                        hiApp.hidePreloader();
+                    });
+                } else if (err && result === 'device not responding') {
+                        hiApp.alert("device no response", function(){
+                        hiApp.hideIndicator();
+                        hiApp.hidePreloader();
+                    });
+                }
+                // that.renderDeviceList(that.transformDeviceList(dl));
+            });
+        } else {
+            //handle token
+        }
+    },    
     bindEvent: function(){
 
         var bindings = [{
@@ -272,14 +301,14 @@ var home = {
             handler: this.connectDevice
         },{
             element: '#homeView',
+            selector:'div.card-footer .disconnectlink',
+            event: 'click',
+            handler: this.disconnectDevice            
+        },{
+            element: '#homeView',
             selector:'div.card-footer .getspeclink',
             event: 'click',
             handler: getspecModule.openGetSpecPage
-        },{
-            element: '#homeView',
-            selector:'div.card-footer .controllink',
-            event: 'click',
-            handler: controlModule.openControlPage
         }];
 
         appFunc.bindEvents(bindings);

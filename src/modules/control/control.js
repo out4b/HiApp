@@ -2,16 +2,38 @@ require('./control.less');
 
 var appFunc = require('../utils/appFunc'),
     template = require('./control.tpl.html'),
-    camera = require('../components/camera'),
-    geo = require('../components/geolocation');
+    service = require('./service');
+
 
 var inputModule = {
-    openControlPage: function(){
+    init: function(query){
+        var that = this;
 
-        var output = appFunc.renderTpl(template, {
-            send_placeholder: i18n.index.send_placeholder
-        });
-        hiApp.popup(output);
+        this.deviceID = query.deviceID;
+        console.log(deviceID);
+
+        service.getDeviceSpec(this.deviceID, function(err, spec) {
+            that.spec = spec;
+            console.log(err);
+            console.log(spec);
+            // that.renderDeviceList(that.transformDeviceList(dl));
+            // hiApp.hideIndicator();
+            // var ptrContent = $$('#homeView').find('.pull-to-refresh-content');
+            // ptrContent.data('scrollLoading','unloading');
+        });        
+        // appFunc.hideToolbar();
+    },
+    openControlPage: function(device) {
+        console.log('XXX');
+        var renderData = {
+            serviceList: this.transformServiceList(device),
+            serviceID: function() {
+                return this.id;
+            }
+        };
+
+        var output = appFunc.renderTpl(template, renderData);
+        // $$('#contactView .contacts-list ul').html(output);
 
         var bindings = [{
             element: '#sendWeiboBtn',
@@ -33,30 +55,27 @@ var inputModule = {
 
         appFunc.bindEvents(bindings);
     },
-    postMessage: function(){
-        var text = $$('#messageText').val();
+    transformServiceList: function(device) {
+        var serviceArray = [];
 
-        if(appFunc.getCharLength(text) < 4){
-            hiApp.alert(i18n.index.err_text_too_short);
-            return;
+        for (serviceID in device.serviceList) {
+            device.serviceList[serviceID].id = serviceID;
+            serviceArray.push(device.serviceList[serviceID]);
         }
+        return serviceArray;
+    },    
+    renderServiceList: function(sl) {
+        console.log(dl);
 
-        var imgSrc = $$('#uploadPicPreview>img').attr('src');
-
-        if(imgSrc !== 'http://placeholder'){
-            if(appFunc.isPhonegap()) {
-                camera.startUpload(imgSrc);
-            }
+        var output = appFunc.renderTpl(template, renderData);
+        if(type === 'prepend'){
+            $$('#homeView').find('.home-timeline').prepend(output);
+        }else if(type === 'append') {
+            $$('#homeView').find('.home-timeline').append(output);
         }else {
-            hiApp.showPreloader(i18n.index.sending);
-
-            setTimeout(function () {
-                hiApp.hidePreloader();
-                hiApp.closeModal('.send-popup');
-                //Refresh Timeline
-            }, 1300);
+            $$('#homeView').find('.home-timeline').html(output);
         }
-    }
+    },
 };
 
 module.exports = inputModule;

@@ -4,7 +4,8 @@ var index = require('./app/app'),
     feedbackModule = require('./feedback/feedback'),
     aboutModule = require('./about/about'),
     languageModule = require('./language/language'),
-    messageModule = require('./message/message');
+    messageModule = require('./message/message'),
+    controlModule = require('./control/control');
 
 module.exports = {
     init: function() {
@@ -23,7 +24,7 @@ module.exports = {
         var name = page.name;
         var from = page.from;
 
-        if(name === 'homeView' || name === 'contactView' || name === 'setting' ){
+        if(name === 'homeView' || name === 'contactView' || name === 'setting' || name === 'device'){
             if(from === 'left'){
                 appFunc.showToolbar();
             }
@@ -48,6 +49,9 @@ module.exports = {
                 break;
             case 'language':
                 languageModule.init();
+                break;
+            case 'device':
+                controlModule.init(query);
                 break;
         }
     }

@@ -53,5 +53,17 @@ module.exports = {
         },function(err, result){
             callback(err, result);
         });                
-    }
+    },
+    disconnectDevice: function(deviceID, token, callback) {
+        xhr.simpleCall({
+            func:'disconnect',
+            method: 'POST',
+            data: {
+                deviceID: deviceID,
+                token: token
+            }
+        },function(err, result){
+            callback(err, result);
+        });                
+    }    
 };
