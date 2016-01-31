@@ -222,7 +222,7 @@ var home = {
 
         console.log(deviceID);
         if (deviceList[deviceID].device.userAuth === false) {
-            service.connectDevice(deviceID, '', '', function(err, result) {
+            service.connectDevice(deviceID, null, null, function(err, result) {
                 console.log(err); console.log(result);
                 if (!err) {
                     hiApp.alert("device connected", function(){
@@ -266,7 +266,7 @@ var home = {
         } else {
             //handle token
         }
-    },    
+    },
     bindEvent: function(){
 
         var bindings = [{
@@ -303,7 +303,7 @@ var home = {
             element: '#homeView',
             selector:'div.card-footer .disconnectlink',
             event: 'click',
-            handler: this.disconnectDevice            
+            handler: this.disconnectDevice
         },{
             element: '#homeView',
             selector:'div.card-footer .getspeclink',
