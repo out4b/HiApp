@@ -107,7 +107,7 @@ var app = {
                     switchLanguage: i18n.global.switch_language
                 },
                 'page:device': {
-                    back: i18n.global.back,                    
+                    back: i18n.global.back,
                 }
             }
         });

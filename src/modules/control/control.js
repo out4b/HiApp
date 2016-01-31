@@ -2,7 +2,8 @@ require('./control.less');
 
 var appFunc = require('../utils/appFunc'),
     template = require('./control.tpl.html'),
-    service = require('./service');
+    xhrService = require('./service'),
+    variableTemplate = require('./variable.tpl.html');
 
 
 var inputModule = {
@@ -12,15 +13,16 @@ var inputModule = {
         this.deviceID = query.deviceID;
         console.log(deviceID);
 
-        service.getDeviceSpec(this.deviceID, function(err, spec) {
+        xhrService.getDeviceSpec(this.deviceID, function(err, spec) {
             that.spec = spec;
             console.log(err);
             console.log(spec);
+            that.renderServiceList(that.transformServiceList(that.spec));
             // that.renderDeviceList(that.transformDeviceList(dl));
             // hiApp.hideIndicator();
             // var ptrContent = $$('#homeView').find('.pull-to-refresh-content');
             // ptrContent.data('scrollLoading','unloading');
-        });        
+        });
         // appFunc.hideToolbar();
     },
     openControlPage: function(device) {
@@ -55,26 +57,120 @@ var inputModule = {
 
         appFunc.bindEvents(bindings);
     },
-    transformServiceList: function(device) {
+    transformServiceList: function(spec) {
         var serviceArray = [];
+        var sl = spec.device.serviceList;
 
-        for (serviceID in device.serviceList) {
-            device.serviceList[serviceID].id = serviceID;
-            serviceArray.push(device.serviceList[serviceID]);
+        for (serviceID in sl) {
+            var service = sl[serviceID];
+            service.id  = serviceID;
+            service.va = [];
+            for (var j in service.serviceStateTable) {
+                service.serviceStateTable[j].name = j;
+                service.va.push(service.serviceStateTable[j]);
+            }
+            service.aa = [];
+            for (var j in service.actionList) {
+                service.actionList[j].name = j;
+                service.aa.push(service.actionList[j]);
+            }
+            serviceArray.push(service);
         }
         return serviceArray;
-    },    
-    renderServiceList: function(sl) {
-        console.log(dl);
+    },
+    getClickHandler: function(service, action) {
+        var _this = this;
+        return function() {
+            var args = action.argumentList;
+            for (var argName in args) {
+                var variableName = args[argName].relatedStateVariable;
+                var stateVariable = service.serviceStateTable[variableName];
+                console.log(stateVariable);
+                if (stateVariable.dataType === 'boolean') {
+                    if (args[argName].direction === 'in') {
+                        var popupButtons = [{
+                            text: 'ON',
+                            onClick: function () {
+                                xhrService.invokeAction(_this.deviceID, service.id, action.name, {stateValue: true}, function(err, result) {
+                                    console.log(err);
+                                });
+                            }
+                        },
+                        {
+                            text: 'OFF',
+                            onClick: function () {
+                                xhrService.invokeAction(_this.deviceID, service.id, action.name, {stateValue: false}, function(err, result) {
+                                    console.log(err);
+                                });
+                            }
+                        }];
+
+                        hiApp.actions(popupButtons);
+                        // popup set value menu
+                    } else {
+                        // popup retrieved value
+                    }
+                }
+            }
+        };
+    },
+    renderServiceList: function(sa, type) {
+        var renderData = {
+            serviceList: sa,
+            serviceID: function() {
+                return this.id;
+            }
+        };
 
         var output = appFunc.renderTpl(template, renderData);
-        if(type === 'prepend'){
-            $$('#homeView').find('.home-timeline').prepend(output);
-        }else if(type === 'append') {
-            $$('#homeView').find('.home-timeline').append(output);
-        }else {
-            $$('#homeView').find('.home-timeline').html(output);
+        $$('.page[data-page="device"] .device-servicelist').html(output);
+
+        for (var i in sa) {
+            var aa = sa[i].aa;
+            for (var j in aa) {
+                var elem = '.' + aa[j].name;
+                var binding = [{
+                    element: elem,
+                    event: 'click',
+                    handler: this.getClickHandler(sa[i], aa[j])
+                }];
+                appFunc.bindEvents(binding);
+            }
         }
+        // var bindings = [{
+        //     element: '.getState',
+        //     event: 'click',
+        //     handler: this.binarySwitchHandler
+        // }];
+
+        // appFunc.bindEvents(bindings);
+
+        // var variableRenderData = {
+        //     variableList: va,
+        //     variableName: function() {
+        //         return this.name;
+        //     }
+        // };
+        // var output = appFunc.renderTpl(variableTemplate, variableRenderData);
+        // $$('.page[data-page="device"] .device-servicelist .variable-list').html(output);
+
+        // var actionRenderData = {
+        //     actionList: actions,
+        //     actionName: function() {
+        //         return this.name;
+        //     }
+        // }
+        // var ao = appFunc.renderTpl(actionTemplate, actionRenderData);
+        // console.log(ao);
+        // $$('.page[data-page="device"] .device-servicelist .action-list').html(ao);
+
+        // if(type === 'prepend'){
+        //     $$('#deviceView').find('.device-servicelist').prepend(output);
+        // }else if(type === 'append') {
+        //     $$('#deviceView').find('.device-servicelist').append(output);
+        // }else {
+        //     $$('#deviceView').find('.device-servicelist').html(output);
+        // }
     },
 };
 

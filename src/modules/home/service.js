@@ -4,21 +4,21 @@ module.exports = {
     getTimeline: function(callback){
         xhr.simpleCall({
             func:'timeline'
-        },function(res){
+        },{}, function(res){
             callback(res.data);
         });
     },
     refreshTimeline: function(callback){
         xhr.simpleCall({
             func:'refresh_timeline'
-        },function(res){
+        }, {}, function(res){
             callback(res.data);
         });
     },
     infiniteTimeline: function(callback){
         xhr.simpleCall({
             func:'more_timeline'
-        },function(res){
+        }, {}, function(res){
             callback(res.data);
         });
     },
@@ -26,44 +26,44 @@ module.exports = {
         xhr.simpleCall({
             func:'discover',
             method: 'POST'
-        }, callback);
+        }, null, callback);
     },
     stopDiscoverDevice: function(callback) {
         xhr.simpleCall({
             func:'stop-discover',
             method: 'POST'
-        }, callback);
-    },    
+        }, null, callback);
+    },
     getDeviceList: function(callback) {
         xhr.simpleCall({
             func:'devicelist'
-        },function(err, res){
+        }, null, function(err, res){
             callback(err, res);
-        });        
+        });
     },
     connectDevice: function(deviceID, user, pass, callback) {
         xhr.simpleCall({
             func:'connect',
             method: 'POST',
             data: {
-                deviceID: deviceID,
-                username: user,
-                password: pass
+                deviceID: deviceID
             }
+        },{
+            username: user,
+            password: pass
         },function(err, result){
             callback(err, result);
-        });                
+        });
     },
     disconnectDevice: function(deviceID, token, callback) {
         xhr.simpleCall({
             func:'disconnect',
             method: 'POST',
             data: {
-                deviceID: deviceID,
-                token: token
+                deviceID: deviceID
             }
-        },function(err, result){
+        },{token: token}, function(err, result){
             callback(err, result);
-        });                
-    }    
+        });
+    }
 };

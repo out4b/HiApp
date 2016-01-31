@@ -1,6 +1,6 @@
 var appFunc = require('./appFunc'),
     networkStatus = require('../components/networkStatus');
-var CdifServerUrl = 'http://10.239.158.75:3049/';
+var CdifServerUrl = 'http://localhost:3049/';
 
 module.exports = {
 
@@ -23,10 +23,12 @@ module.exports = {
             return CdifServerUrl + 'device-list';
         } else if (func === 'get-spec') {
             return CdifServerUrl + 'device-control/' + options.data.deviceID + '/get-spec';
-        }else if (func === 'discover') {
+        } else if (func === 'discover') {
             return CdifServerUrl + 'discover';
         } else if (func === 'stop-discover') {
             return CdifServerUrl + 'stop-discover';
+        } else if (func === 'invoke-action') {
+            return CdifServerUrl + 'device-control/' + options.data.deviceID + '/invoke-action';
         } else if (func === 'connect') {
             return CdifServerUrl + 'device-control/' + options.data.deviceID + '/connect';
         } else if (func === 'disconnect') {
@@ -46,14 +48,22 @@ module.exports = {
         return apiServer.replace(/&$/gi, '');
     },
 
-    simpleCall: function(options,callback){
+    simpleCall: function(options, input, callback){
         var that = this;
+        var inputData;
 
         options = options || {};
         options.data = options.data ? options.data : '';
 
         //If you access your server api ,please user `post` method.
         options.method = options.method || 'GET';
+
+        if (input === null) {
+            this.inputData = {};
+        } else {
+            this.inputData = input;
+        }
+        console.log(this.inputData);
         //options.method = options.method || 'POST';
 
         if(appFunc.isPhonegap()){
@@ -73,7 +83,11 @@ module.exports = {
         $$.ajax({
             url: that.getRequestURL(options) ,
             method: options.method,
-            data: options.data,
+            headers: {
+                "Content-Type": "application/json"
+            },
+            processData: false,
+            data: JSON.stringify(that.inputData),
             success:function(data, status, xhr) {
                 console.log(data);
                 console.log(status);
@@ -103,6 +117,7 @@ module.exports = {
             },
             error:function(xhr, status, data) {
                 var response = JSON.parse(xhr.response);
+                console.log(response);
                 callback(new Error(response.topic), response.message);
             }
         });
