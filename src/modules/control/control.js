@@ -3,7 +3,7 @@ require('./control.less');
 var appFunc = require('../utils/appFunc'),
     template = require('./control.tpl.html'),
     xhrService = require('./service'),
-    variableTemplate = require('./variable.tpl.html');
+    switchTemplate = require('./switch.tpl.html');
 
 
 var inputModule = {
@@ -15,8 +15,6 @@ var inputModule = {
 
         xhrService.getDeviceSpec(this.deviceID, function(err, spec) {
             that.spec = spec;
-            console.log(err);
-            console.log(spec);
             that.renderServiceList(that.transformServiceList(that.spec));
             // that.renderDeviceList(that.transformDeviceList(dl));
             // hiApp.hideIndicator();
@@ -25,38 +23,7 @@ var inputModule = {
         });
         // appFunc.hideToolbar();
     },
-    openControlPage: function(device) {
-        console.log('XXX');
-        var renderData = {
-            serviceList: this.transformServiceList(device),
-            serviceID: function() {
-                return this.id;
-            }
-        };
 
-        var output = appFunc.renderTpl(template, renderData);
-        // $$('#contactView .contacts-list ul').html(output);
-
-        var bindings = [{
-            element: '#sendWeiboBtn',
-            event: 'click',
-            handler: inputModule.postMessage
-        },{
-            element: 'div.message-tools .get-position',
-            event: 'click',
-           handler: geo.catchGeoInfo
-        },{
-            element: '#geoInfo',
-            event: 'click',
-            handler: geo.cleanGeo
-        },{
-            element: 'div.message-tools .image-upload',
-            event: 'click',
-            handler: camera.getPicture
-        }];
-
-        appFunc.bindEvents(bindings);
-    },
     transformServiceList: function(spec) {
         var serviceArray = [];
         var sl = spec.device.serviceList;
@@ -72,6 +39,10 @@ var inputModule = {
             service.aa = [];
             for (var j in service.actionList) {
                 service.actionList[j].name = j;
+                var argumentList = service.actionList[j].argumentList;
+                for (var l in argumentList) {
+                    argumentList[l].name = l;
+                }
                 service.aa.push(service.actionList[j]);
             }
             serviceArray.push(service);
@@ -115,6 +86,7 @@ var inputModule = {
         };
     },
     renderServiceList: function(sa, type) {
+        var _this = this;
         var renderData = {
             serviceList: sa,
             serviceID: function() {
@@ -125,53 +97,54 @@ var inputModule = {
         var output = appFunc.renderTpl(template, renderData);
         $$('.page[data-page="device"] .device-servicelist').html(output);
 
+        var $this = $$('.page[data-page="device"] .device-servicelist');
+
         for (var i in sa) {
             var aa = sa[i].aa;
             for (var j in aa) {
-                var elem = '.' + aa[j].name;
-                var binding = [{
-                    element: elem,
-                    event: 'click',
-                    handler: this.getClickHandler(sa[i], aa[j])
-                }];
-                appFunc.bindEvents(binding);
+                var args = aa[j].argumentList;
+                for (var l in args) {
+                    var varName = args[l].relatedStateVariable;
+                    var variable = sa[i].serviceStateTable[varName];
+                    var sel = '.' + aa[j].name;
+                    if (variable.dataType === 'boolean' && args[l].direction === 'in') {
+                        var renderData = {
+                            id: aa[j].name
+                        };
+                        var out = appFunc.renderTpl(switchTemplate, renderData);
+                        $this.find(sel).html(out);
+
+                        var arg = {};
+                        arg[l] = false;
+                        var actionObject = new ActionObject(_this.deviceID, sa[i].id, aa[j].name, arg);
+
+                        var binding = [{
+                            element: sel,
+                            event: 'change',
+                            handler: function() {
+                                actionObject.invoke(function(err, result) {
+                                    if (!err) {
+
+                                    }
+                                });
+                            }
+                        }];
+                        appFunc.bindEvents(binding);
+                    }
+                }
             }
         }
-        // var bindings = [{
-        //     element: '.getState',
-        //     event: 'click',
-        //     handler: this.binarySwitchHandler
-        // }];
 
-        // appFunc.bindEvents(bindings);
-
-        // var variableRenderData = {
-        //     variableList: va,
-        //     variableName: function() {
-        //         return this.name;
-        //     }
-        // };
-        // var output = appFunc.renderTpl(variableTemplate, variableRenderData);
-        // $$('.page[data-page="device"] .device-servicelist .variable-list').html(output);
-
-        // var actionRenderData = {
-        //     actionList: actions,
-        //     actionName: function() {
-        //         return this.name;
-        //     }
-        // }
-        // var ao = appFunc.renderTpl(actionTemplate, actionRenderData);
-        // console.log(ao);
-        // $$('.page[data-page="device"] .device-servicelist .action-list').html(ao);
-
-        // if(type === 'prepend'){
-        //     $$('#deviceView').find('.device-servicelist').prepend(output);
-        // }else if(type === 'append') {
-        //     $$('#deviceView').find('.device-servicelist').append(output);
-        // }else {
-        //     $$('#deviceView').find('.device-servicelist').html(output);
-        // }
     },
 };
 
+var ActionObject = function(deviceID, serviceID, actionName, argumentList) {
+    this.deviceID = deviceID;
+    this.serviceID = serviceID;
+    this.actionName = actionName;
+    this.args = argumentList;
+    this.invoke = function(callback) {
+        xhrService.invokeAction(this.deviceID, this.serviceID, this.actionName, this.args, callback);
+    };
+}
 module.exports = inputModule;

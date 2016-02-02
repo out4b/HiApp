@@ -8,21 +8,8 @@
               <div class="item-content">
                 <p class="buttons-row theme-pink">
                     {{#each this.aa}}
-                    <div class="row">
-                        <div class="{{this.name}}">
-                            <a href="#" class="{{this.name}} button">{{this.name}}</a>
-                        </div>
-                        {{#each this.argumentList}}
-                            {{#js_compare "this.direction === 'in'"}}
-                                <div data-id="{{this.name}}" class="item-input">
-                                    <label data-id="{{this.name}}" class="label-switch">
-                                      <input type="checkbox">
-                                      <div class="checkbox"></div>
-                                    </label>
-                                </div>
-                            {{else}}
-                            {{/js_compare}}
-                        {{/each}}
+                    <div class="{{this.name}}">
+                        <a href="#" class="{{this.name}} button">{{this.name}}</a>
                     </div>
                     {{/each}}
                 </p>

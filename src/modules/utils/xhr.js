@@ -64,7 +64,6 @@ module.exports = {
             this.inputData = input;
         }
         console.log(this.inputData);
-        //options.method = options.method || 'POST';
 
         if(appFunc.isPhonegap()){
             //Check network connection
